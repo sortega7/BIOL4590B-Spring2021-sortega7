@@ -1,0 +1,16 @@
+#lab24_exercise3.txt
+
+ssh -Y sortega7@pace-ice.pace.gatech.edu
+
+mkdir lab24
+
+cd /storage/home/hpaceice1/shared-classes/materials/bios4590b/lab24
+cp SRR11364933.fastq ~
+mv SRR11364933.fastq lab24
+gzip SRR11364933.fastq
+pace-interact -q pace-ice
+module load anaconda3
+conda activate lab24_exercise2
+trim_galore SRR11364933.fastq.gz --length 62 -q 15 -a AGTTGCGACACGGATCTATCA
+gunzip SRR11364933_trimmed.fq.gz
+wc SRR11364933_trimmed.fq
