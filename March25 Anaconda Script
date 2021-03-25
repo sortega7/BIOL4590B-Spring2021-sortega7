@@ -1,0 +1,31 @@
+#BIOL4590B 3/25/2021
+
+#ssh into PACE server
+ssh -Y sortega7@pace-ice.pace.gatech.edu
+#login w username/password
+
+#log in to interactive mode of PACE
+pace-interact -q pace-ice
+
+#load anaconda software
+module load anaconda3
+
+#create first environment + download python 
+conda create -n lab24_exercise2 python 3.6 numpy
+
+#activate the environment
+conda activate lab24_exercise2
+
+#add bioconda channel, download trim-galore and fastqc softwares 
+conda config --add channels bioconda
+conda install trim-galore
+conda install fastqc
+
+#deactivate first environment
+conda deactivate
+
+#list existing modules
+module list 
+
+#create second environment from ribosemap file (long step) 
+conda env create -n ribosemap_env -f ~/ribose-map/lib/ribosemap.yaml 
