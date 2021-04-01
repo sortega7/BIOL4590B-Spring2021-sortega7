@@ -40,7 +40,9 @@ mkdir bg
 
 ../RibosePreferenceAnalysis/get_chrom.py dinuc/*dinuc*nr -s 2micron chrM -v -o nuc_nr.raw 
 
-../RibosePreferenceAnalysis/normalize.py nuc_nr.raw saccer_dinuc.tsv --group_len 4  --name nuc -o nuc_nr.tsv
-../RibosePreferenceAnalysis/draw_heatmap.py nuc_nr.tsv -b saccer_dinuc.tsv -o nuc_nr.png
+../RibosePreferenceAnalysis/normalize.py nuc_nr.raw saccer_dinuc.tsv --group_len 4  --name nuc -o nuc_nr.norm
+../RibosePreferenceAnalysis/resort.py nuc_nr.norm libinfo.tsv -c 1 -o nuc_nr.tsv
+../RibosePreferenceAnalysis/draw_heatmap.py nuc_nr.tsv -b saccer_dinuc.tsv --background_chrom nuc -o nuc_nr.png
+
 
 
