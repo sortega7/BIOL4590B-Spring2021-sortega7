@@ -1,0 +1,23 @@
+ssh -Y sortega7@pace-ice.pace.gatech.edu
+pace-interact -q pace-ice
+module load anaconda3
+conda activate ribosemap_env
+git clone https://github.com/xph9876/RibosePreferenceAnalysis
+mkdir lab26
+cd lab26
+mkdir bed
+cd /storage/home/hpaceice1/shared-classes/materials/bios4590b/lab26
+cp (filename) ~ #for all files 
+mv (filename) lab26 #for all files
+cd lab26
+mv (filename beds) bed
+cd lab25
+cd genome
+cp saccer.fa ~
+mv saccer.fa lab26
+../RibosePreferenceAnalysis/count_rNMP.py saccer.fa bed/* -m
+mkdir mono
+mv (file).mono mono
+mkdir dinuc
+../RibosePreferenceAnalysis/count_rNMP.py saccer.fa bed/* -d
+mv (file).dinuc_d1_nr/rn dinuc
