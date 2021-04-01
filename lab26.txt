@@ -29,5 +29,18 @@ mv (file).dinuc_d1_nr/rn dinuc
 mkdir bg
 ../RibosePreferenceAnalysis/count_background.py saccer.fa --mono -o saccer_mono_raw.tsv
 ../RibosePreferenceAnalysis/count_background.py saccer.fa -o saccer_dinuc_raw.tsv
-../RibosePreferenceAnalysis/get_chrom.py saccer_mono_raw.tsv -s 2micron chrM -v --name nuc -o saccer_mono.tsv
-../RibosePreferenceAnalysis/get_chrom.py saccer_dinuc_raw.tsv -s 2micron chrM -v --name nuc -o saccer_dinuc.tsv
+../RibosePreferenceAnalysis/get_chrom.py saccer_mono_raw.tsv -s 2micron chrM -v --name nuc -o saccer_mono.tsv -a
+../RibosePreferenceAnalysis/get_chrom.py saccer_dinuc_raw.tsv -s 2micron chrM -v --name nuc -o saccer_dinuc.tsv -a
+
+#exercise3, start from step 4
+../RibosePreferenceAnalysis/get_chrom.py saccer_mono_raw.tsv mono/* -s chrM -o chrM_mono.raw
+../RibosePreferenceAnalysis/normalize.py chrM_mono.raw saccer_mono.tsv --group_len 4 --name chrM -o chrM_mono.norm 
+../RibosePreferenceAnalysis/resort.py chrM_mono.norm libinfo.tsv -c 1 -o chrM_mono.tsv
+../RibosePreferenceAnalysis/draw_heatmap.py chrM_mono.tsv -b saccer_mono.tsv -o chrM_mono.png
+
+../RibosePreferenceAnalysis/get_chrom.py dinuc/*dinuc*nr -s 2micron chrM -v -o nuc_nr.raw 
+
+../RibosePreferenceAnalysis/normalize.py nuc_nr.raw saccer_dinuc.tsv --group_len 4  --name nuc -o nuc_nr.tsv
+../RibosePreferenceAnalysis/draw_heatmap.py nuc_nr.tsv -b saccer_dinuc.tsv -o nuc_nr.png
+
+
