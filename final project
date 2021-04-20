@@ -1,1 +1,105 @@
 
+
+
+#enter interactive mode, load environments
+ssh -Y sortega7@pace-ice.pace.gatech.edu
+pace-interact -q pace-ice
+module load anaconda3
+conda activate ribosemap_env
+
+#make project folder w genome folder
+mkdir project
+cd project
+mkdir genome
+
+#copy algae ref. to genome folder
+cd /storage/home/hpaceice1/shared-classes/materials/bios4590b/reference_genome
+cp algae.fa ~/project/genome
+
+#generate chrom. sizes files, bowtie2 index files
+cd ~/project/genome
+samtools faidx algae.fa
+cut -f 1,2 algae.fa.fai > algae.chrom.sizes
+bowtie2-build algae.fa algae
+
+#edit config file
+cd ~/project
+sample='FS231'
+
+barcode='AGC'
+pattern='NNNNNNXXXNN'
+technique='ribose-seq'
+
+respository='/storage/home/hpaceice1/sortega7/project'
+
+basename='/storage/home/hpaceice1/sortega7/project/genome/algae'
+fasta='/storage/home/hpaceice1/sortega7/project/genome/algae.fa'
+read1=''
+
+quality='30'
+threads='6'
+scale='yes'
+
+seed='123456789'
+
+percentile='0.99'
+
+mismatches='0'
+
+units='chromosome_m chloroplast'
+
+#make results w folder containing FS231, containing alignment
+cd ~/project
+mkdir results
+cd results
+mkdir FS231
+cd FS231	
+mkdir alignment
+
+#copy .bam and .bam.bai to alignment folder
+cd /storage/home/hpaceice1/shared-classes/materials/bios4590b/bam
+cp FS231* ~/project/results/FS231/alignment
+
+#run coordinate 
+~/ribose-map/modules/ribosemap coordinate ~/project/sample.config
+
+#run remaining modules
+~/ribose-map/modules/ribosemap composition ~/project/sample.config
+~/ribose-map/modules/ribosemap sequence ~/project/sample.config
+~/ribose-map/modules/ribosemap distribution ~/project/sample.config
+~/ribose-map/modules/ribosemap hotspot ~/project/sample.config
+
+#heatmap
+#copy bed files
+cd ~/project
+mkdir bed
+cd /storage/home/hpaceice1/shared-classes/materials/bios4590b/bed
+cp FS231 and others ~/project/bed
+
+#get mono and dinuc counts
+~/RibosePreferenceAnalysis/count_rNMP.py algae.fa bed/* -m
+mkdir mono
+mv (file).mono mono
+~/RibosePreferenceAnalysis/count_rNMP.py algae.fa bed/* -d
+mkdir dinuc
+mv (file).dinuc_d1_nr/rn dinuc
+
+#get background counts
+cd ~/project
+mkdir background
+~/RibosePreferenceAnalysis/count_background.py algae.fa --mono -o algae_mono_raw.tsv
+~/RibosePreferenceAnalysis/count_background.py algae.fa -o algae_dinuc_raw.tsv
+~/RibosePreferenceAnalysis/get_chrom.py algae_mono_raw.tsv -s 2micron chrM -v --name nuc -o algae_mono.tsv -a
+~/RibosePreferenceAnalysis/get_chrom.py algae_dinuc_raw.tsv -s 2micron chrM -v --name nuc -o algae_dinuc.tsv -a
+
+#draw heatmap 
+~/RibosePreferenceAnalysis/get_chrom.py ~/project/genome/mono/* -s chromosome_m -o chrM_mono.raw
+~/RibosePreferenceAnalysis/normalize.py chrM_mono.raw algae_mono.tsv --group_len 4 --name chromosome_m -o chrM_mono.norm 
+~/RibosePreferenceAnalysis/resort.py chrM_mono.norm libinfo.tsv -c 1 -o chrM_mono.tsv
+~/RibosePreferenceAnalysis/draw_heatmap.py chrM_mono.tsv -b algae_mono.tsv --background_chrom chromosome_m -o chrM_mono.png
+
+#draw heatmap (dinuc)
+~/RibosePreferenceAnalysis/get_chrom.py dinuc/*dinuc*nr -s 2micron chrM -v -o nuc_nr.raw 
+~/RibosePreferenceAnalysis/normalize.py nuc_nr.raw algae_dinuc.tsv --group_len 4  --name nuc -o nuc_nr.norm
+~/RibosePreferenceAnalysis/resort.py nuc_nr.norm libinfo.tsv -c 1 -o nuc_nr.tsv
+~/RibosePreferenceAnalysis/draw_heatmap.py nuc_nr.tsv -b algae_dinuc.tsv --background_chrom nuc -o nuc_nr.png
